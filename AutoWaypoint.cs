@@ -99,9 +99,19 @@ public class AutoWaypoint : MonoBehaviour {
 			noPointsWarned=true;
 		}
 		
-		foreach (AutoWaypoint wp in waypoints) {
-			Gizmos.color = (CanSee(wp.gameObject)) ? AutoWaypointOptions.Instance.connectorColor : AutoWaypointOptions.Instance.badConnectorColor;
-			Gizmos.DrawLine(transform.position, wp.transform.position);
+		try {
+			foreach (AutoWaypoint wp in waypoints) {
+				if (wp==null) {
+					Debug.Log("A waypoint was removed...rebuilding.");
+					ConnectAllWaypoints();
+					return;
+				}
+				Gizmos.color = (CanSee(wp.gameObject)) ? AutoWaypointOptions.Instance.connectorColor : AutoWaypointOptions.Instance.badConnectorColor;
+				Gizmos.DrawLine(transform.position, wp.transform.position);
+			}
+		} catch (MissingReferenceException x) {
+			Debug.Log("A waypoint was removed...rebuilding.");
+			ConnectAllWaypoints();
 		}
 	}
 
