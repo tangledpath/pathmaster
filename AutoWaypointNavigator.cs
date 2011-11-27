@@ -13,9 +13,9 @@ public class AutoWaypointNavigator : MonoBehaviour {
 	public bool activated=false;
 	//public CharacterMotor motor;
 	private static float TARGET_CLOSE_DISTANCE_SQR = 1.0f;
-	private static float SEARCH_TIMEOUT = 30.0f;	
+	//private static float SEARCH_TIMEOUT = 30.0f;	
 	public float rotationSpeed = 0.5f;
-	private float searchTime=0.0f;
+	//private float searchTime=0.0f;
 	
 	
 	// Use this for initialization
@@ -27,9 +27,9 @@ public class AutoWaypointNavigator : MonoBehaviour {
 //			UnityEngine.Debug.LogError("Character Motor is a required component.", this);
 //		}						
 		
-		if (this.constantForce==null) {
-			UnityEngine.Debug.LogError("Must have a constant force attached.", this);
-		}
+//		if (this.constantForce==null) {
+//			UnityEngine.Debug.LogError("Must have a constant force attached.", this);
+//		}
 	}
 	
 	// Update is called once per frame
@@ -67,8 +67,7 @@ public class AutoWaypointNavigator : MonoBehaviour {
 	// navigator and return false:
 	public bool CalculatePathToTarget(GameObject targ) {
 		activated=false;
-		//ArrayList path = AutoWaypoint.AStar(transform.position, targ.transform.position);
-		ArrayList path = AutoWaypoint.AStar(this.gameObject, targ);
+		ArrayList path = PathFinder.AStar(this.gameObject, targ);
 		
 		if (path.Count==0) {
 			Debug.Log("A* path was null.");		
@@ -77,7 +76,7 @@ public class AutoWaypointNavigator : MonoBehaviour {
 		currentPath=path;
 		currentTarget = targ;		
 		lastCalcedTarget = currentTarget;
-		searchTime=Time.time;
+		//searchTime=Time.time;
 		activated=true;	
 		return activated;
 	}

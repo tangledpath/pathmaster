@@ -5,7 +5,7 @@ public class AutoWaypoint : MonoBehaviour {
 	// True to always show connectors.  Otherwise, show when selected:
 	private const float WAYPOINT_SIDE_LEN = 0.25f;
 	private const float RAYCASTCHECKRADIUS = 0.25f;	
-	private static float A_STAR_GOAL_TOLERANCE_SQR=10000; // 100 meters
+	
 	
 	
 	// All connected waypoints:	
@@ -31,7 +31,7 @@ public class AutoWaypoint : MonoBehaviour {
 	
 	[ContextMenu ("Rebuild Waypoint Paths")]
 	void RebuildWaypointPaths() {
-		ConnectAllWaypoints();
+		PathFinder.ConnectAllWaypoints();
 	}
 	
 	void OnDrawGizmos() {
@@ -40,8 +40,7 @@ public class AutoWaypoint : MonoBehaviour {
 	
 	void OnDrawGizmosSelected () {
 		// Draw connectors unless we already draw them:
-		//Gizmos.color=Color.cyan;
-		DrawGizmos(Color.cyan);
+		DrawGizmos(AutoWaypointOptions.Instance.selectedWaypointColor);
 		if (AutoWaypointOptions.Instance.drawConnectors) { DrawConnectors(); }
 	}		   
 	
@@ -94,7 +93,7 @@ public class AutoWaypoint : MonoBehaviour {
 	}
 	
 	private void DrawConnectors() {
-		if (waypoints.Length==0) { ConnectAllWaypoints(); }
+		if (waypoints.Length==0) { PathFinder.ConnectAllWaypoints(); }
 		if (waypoints.Length==0 && !noPointsWarned) { 
 			noPointsWarned=true;
 		}
@@ -103,27 +102,19 @@ public class AutoWaypoint : MonoBehaviour {
 			foreach (AutoWaypoint wp in waypoints) {
 				if (wp==null) {
 					Debug.Log("A waypoint was removed...rebuilding.");
-					ConnectAllWaypoints();
+					PathFinder.ConnectAllWaypoints();
 					return;
 				}
 				Gizmos.color = (CanSee(wp.gameObject)) ? AutoWaypointOptions.Instance.connectorColor : AutoWaypointOptions.Instance.badConnectorColor;
 				Gizmos.DrawLine(transform.position, wp.transform.position);
 			}
-		} catch (MissingReferenceException x) {
+		} catch (MissingReferenceException) {
 			Debug.Log("A waypoint was removed...rebuilding.");
-			ConnectAllWaypoints();
+			PathFinder.ConnectAllWaypoints();
 		}
 	}
 
-	static public void ConnectAllWaypoints() {
-		AutoWaypoint[] points = AllWayPoints();
-		AutoWaypointOptions.Instance.allWaypoints= points; // TODO; DELETE THIS
-		foreach (AutoWaypoint wp in points) {
-			wp.ConnectWaypoint(points);
-		}	    
-	}
-	
-	private void ConnectWaypoint(AutoWaypoint[] allPoints) {
+	public void ConnectWaypoint(AutoWaypoint[] allPoints) {
 		ArrayList found = new ArrayList(10);
 		foreach (AutoWaypoint wp in allPoints) {
 			if (wp==this) continue;  // Don't connect to me!
@@ -141,19 +132,7 @@ public class AutoWaypoint : MonoBehaviour {
 		waypoints=(AutoWaypoint[])found.ToArray(typeof(AutoWaypoint));		
 	}		
 	
-	// Get closest transform (to `this` object) of hit amongst given hits:
-	private RaycastHit GetClosestHit(RaycastHit[] hits) {
-		float closest = Mathf.Infinity;
-		RaycastHit closestHit=new RaycastHit();
-		foreach(RaycastHit h in hits) {
-			if ((h.transform.position - this.transform.position).sqrMagnitude < closest) {
-				closestHit = h;
-			}
-		}
-		return closestHit;
-	}
-	
-	private bool CanSee(GameObject obj) {
+	public bool CanSee(GameObject obj) {
 		// A simple check for non-collider objects (which includes waypoints):
 		if (CanSeePos(obj.transform.position)) {
 			return true;
@@ -166,6 +145,19 @@ public class AutoWaypoint : MonoBehaviour {
 		
 		hits = Physics.RaycastAll(this.transform.position, dir, Mathf.Infinity);
 		return (hits.Length > 0 && GetClosestHit(hits).transform==obj.transform);		
+	}
+	
+	
+	// Get closest transform (to `this` object) of hit amongst given hits:
+	private RaycastHit GetClosestHit(RaycastHit[] hits) {
+		float closest = Mathf.Infinity;
+		RaycastHit closestHit=new RaycastHit();
+		foreach(RaycastHit h in hits) {
+			if ((h.transform.position - this.transform.position).sqrMagnitude < closest) {
+				closestHit = h;
+			}
+		}
+		return closestHit;
 	}
 	
 	private bool CanSeePos(Vector3 pos) {
@@ -197,110 +189,6 @@ public class AutoWaypoint : MonoBehaviour {
 	    }
    }
 	
-	public static AutoWaypoint[] AllWayPoints() {
-		return FindObjectsOfType(typeof(AutoWaypoint)) as AutoWaypoint[];
-	}
 	
-	public static AutoWaypoint ClosestWaypoint(Vector3 goal) {
-		AutoWaypoint closestPnt=null;
-		float closestDist = float.MaxValue;
-		float dist;
-		AutoWaypoint[] allPnts=AllWayPoints();
-		for (int i=0; i<allPnts.Length; ++i) {
-			dist = (allPnts[i].transform.position-goal).sqrMagnitude;
-			if (dist < closestDist) {
-				closestDist = dist;
-				closestPnt = allPnts[i];
-			}
-		}
-		return closestPnt;
-	}
-	
-	public static ArrayList AStar(GameObject start, GameObject goal) {
-		//UnityEngine.Debug.Log("Finding path from " + start.transform.position.ToString() + " to " + goal.ToString());
-		Vector3 startPos = start.transform.position;
-		AutoWaypoint.ConnectAllWaypoints();
-		AutoWaypoint[] all= AllWayPoints();
-		float tm = Time.realtimeSinceStartup;
-		ArrayList closedSet = new ArrayList(all.Length);
-		ArrayList openSet = new ArrayList(all.Length);
-		AutoWaypoint startWaypoint = ClosestWaypoint(startPos);
-		if (startWaypoint==null) {
-			Debug.LogWarning("No waypoints!");
-			return new ArrayList();
-		}
-		
-		openSet.Add(startWaypoint);
-		IDictionary cameFrom = new Hashtable(20, 0.75f);
-		IDictionary g_score = new Hashtable(20, 0.75f);
-		IDictionary h_score = new Hashtable(20, 0.75f);
-		IDictionary f_score = new Hashtable(20, 0.75f);
-		g_score[startWaypoint] = 0.0f;
-		h_score[startWaypoint] = heuristicCostEstimate(startPos, goal.transform.position);
-		
-		while(openSet.Count !=0) {
-			AutoWaypoint candidate=(AutoWaypoint)openSet[0];
-			if (((candidate.transform.position - goal.transform.position).sqrMagnitude <= A_STAR_GOAL_TOLERANCE_SQR) && candidate.CanSee(goal)) {
-				// Pretty close & can see:
-				AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
-				return ReconstructPath(cameFrom, candidate);
-			}
-			
-			// Transfer waypoint to closed set:
-			closedSet.Add(candidate);
-			openSet.RemoveAt(0);
-			
-			// Check neighbors (connected waypoints):
-			AutoWaypoint neighborCandidate;
-			float tentativeGScore;
-			bool tentativeIsBetter;
-			for (int i=0; i<candidate.waypoints.Length; ++i) {
-				neighborCandidate = candidate.waypoints[i];
-				if (closedSet.Contains(neighborCandidate)) {
-					continue;
-				}
-				
-				// Calc scores & compare:
-				if (candidate.waypointDistances==null) { UnityEngine.Debug.Log(candidate + " has no distances."); }
-				tentativeGScore = ((g_score[candidate]==null) ? 0.0f : (float)g_score[candidate]);
-				tentativeGScore +=  (float)(candidate.waypointDistances[neighborCandidate]);						
-					
-				if (!openSet.Contains(neighborCandidate)) {
-					openSet.Add(neighborCandidate);
-					tentativeIsBetter=true;
-				} else if (tentativeGScore < ((g_score[neighborCandidate]==null) ? 0.0f : (float)g_score[neighborCandidate])) {
-					tentativeIsBetter=true;
-				} else {
-					tentativeIsBetter=false;
-				}
-				
-				if (tentativeIsBetter) {
-					cameFrom[neighborCandidate] = candidate;
-					g_score[neighborCandidate] = tentativeGScore;
-					h_score[neighborCandidate] = heuristicCostEstimate(neighborCandidate.transform.position, goal.transform.position);
-					f_score[neighborCandidate] = ((g_score[neighborCandidate]==null) ? 0.0f : (float)g_score[neighborCandidate]) 
-											   + ((h_score[neighborCandidate]==null) ? 0.0f : (float)h_score[neighborCandidate]);
-				}
-			}
-		}	
-		AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
-		return null;
-	}
-	
-	public static ArrayList ReconstructPath(IDictionary cameFrom, AutoWaypoint currentNode) {
-		ArrayList path;
-		if (cameFrom.Contains(currentNode)) {
-			path = ReconstructPath(cameFrom, (AutoWaypoint)cameFrom[currentNode]);
-			path.Add(currentNode);			
-		} else {
-			path = new ArrayList(10);
-			path.Add(currentNode);			
-		}
-		return path;		
-	}
-	
-	private static float heuristicCostEstimate(Vector3 start, Vector3 end) {
-		return (start-end).magnitude;
-	}
 }
 

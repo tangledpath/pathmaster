@@ -8,13 +8,13 @@ public class AutoWaypointTester : MonoBehaviour {
 	
 	[ContextMenu ("Rebuild Waypoint Paths")]
 	void RebuildWaypointPaths() {
-		AutoWaypoint.ConnectAllWaypoints();
+		PathFinder.ConnectAllWaypoints();
 	}
 	
 	[ContextMenu ("Find path to destination")]
 	void FindPath() {
 		if (destination!=null) {
-			path = AutoWaypoint.AStar(this.gameObject, destination.gameObject);
+			path = PathFinder.AStar(this.gameObject, destination.gameObject);
 			//if (path==null) { UnityEngine.Debug.Log("Path could not be found from :" + transform.position + " to:" + destination.position); }
 		} else {
 			UnityEngine.Debug.Log("Please drag a gameobject into destination.");
