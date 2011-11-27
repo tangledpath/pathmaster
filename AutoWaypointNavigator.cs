@@ -69,15 +69,16 @@ public class AutoWaypointNavigator : MonoBehaviour {
 		activated=false;
 		//ArrayList path = AutoWaypoint.AStar(transform.position, targ.transform.position);
 		ArrayList path = AutoWaypoint.AStar(this.gameObject, targ);
-		if (path != null && path.Count > 0) {
-			currentPath=path;
-			currentTarget = targ;		
-			lastCalcedTarget = currentTarget;
-			searchTime=Time.time;
-			activated=true;	
-		} else {
-			Debug.Log("was null");
+		
+		if (path.Count==0) {
+			Debug.Log("A* path was null.");		
 		}
+		
+		currentPath=path;
+		currentTarget = targ;		
+		lastCalcedTarget = currentTarget;
+		searchTime=Time.time;
+		activated=true;	
 		return activated;
 	}
 	

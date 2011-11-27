@@ -215,6 +215,11 @@ public class AutoWaypoint : MonoBehaviour {
 		ArrayList closedSet = new ArrayList(all.Length);
 		ArrayList openSet = new ArrayList(all.Length);
 		AutoWaypoint startWaypoint = ClosestWaypoint(startPos);
+		if (startWaypoint==null) {
+			Debug.LogWarning("No waypoints!");
+			return new ArrayList();
+		}
+		
 		openSet.Add(startWaypoint);
 		IDictionary cameFrom = new Hashtable(20, 0.75f);
 		IDictionary g_score = new Hashtable(20, 0.75f);
