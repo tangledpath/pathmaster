@@ -164,31 +164,6 @@ public class AutoWaypoint : MonoBehaviour {
 		Vector3 p1 = new Vector3(pos.x, pos.y+RAYCASTCHECKRADIUS+0.1f, pos.z);
 		Vector3 p2 = new Vector3(transform.position.x, transform.position.y+RAYCASTCHECKRADIUS+0.1f, transform.position.z);
 		return !Physics.CheckCapsule(p1, p2, RAYCASTCHECKRADIUS);
-	}
-	
-	// Compare two waypoints, identifying the lesser one
-	// as closer.  Does not support null waypoints:
-	public class WaypointComparer : System.Collections.IComparer  {
-		private AutoWaypoint srcPnt;
-		private float dist1; // To avoid many allocations/deletes
-		private float dist2; // To avoid many allocations/deletes
-		public WaypointComparer(AutoWaypoint sourcePoint) {
-			srcPnt=sourcePoint;			
-		}
-			
-	    public int Compare(object x, object y) {
-			dist1=(float)srcPnt.waypointDistances[x];// this.   (((Waypoint) y).transform.position-srcPos).sqrMagnitude;
-			dist2=(float)srcPnt.waypointDistances[y];// (((Waypoint) y).transform.position-srcPos).sqrMagnitude;
-			if (dist1 < dist2) {
-				return -1;
-			} else if (dist2 > dist1) {
-				return 1;
-			} else {
-				return -1;
-			}
-	    }
-   }
-	
-	
+	}	
 }
 
