@@ -5,19 +5,15 @@ public class AutoWaypoint : MonoBehaviour {
 	// True to always show connectors.  Otherwise, show when selected:
 	private const float WAYPOINT_SIDE_LEN = 0.25f;
 	private const float RAYCASTCHECKRADIUS = 0.25f;	
-	
-	
-	
+		
 	// All connected waypoints:	
 	public AutoWaypoint[] waypoints;
 	// Same number of elements as above.  Contains distances 	
 	public IDictionary waypointDistances; 
-	private bool noPointsWarned=false;
 	
 	// Use this for initialization
 	void Start () {
-		RebuildWaypointPaths();
-		noPointsWarned=false;
+		RebuildWaypointPaths();		
 	}
 	
 	void Awake() {
@@ -93,10 +89,7 @@ public class AutoWaypoint : MonoBehaviour {
 	}
 	
 	private void DrawConnectors() {
-		if (waypoints.Length==0) { PathFinder.ConnectAllWaypoints(); }
-		if (waypoints.Length==0 && !noPointsWarned) { 
-			noPointsWarned=true;
-		}
+		if (waypoints==null || waypoints.Length==0) { PathFinder.ConnectAllWaypoints(); }
 		
 		try {
 			foreach (AutoWaypoint wp in waypoints) {
