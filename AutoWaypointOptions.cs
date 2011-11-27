@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 using System.Collections;
 
 // Make this static:
@@ -32,6 +33,29 @@ public class AutoWaypointOptions : MonoBehaviour {
 	[ContextMenu ("Rebuild Waypoint Paths")]
 	void RebuildWaypointPaths() {
 		PathFinder.ConnectAllWaypoints();
+	}
+	
+	[ContextMenu ("Add Waypoint")]
+	void AddWaypoint() {
+		
+		AutoWaypoint[] waypoints = PathFinder.AllWayPoints();
+		string waypointName = "Waypoint XXX";
+		for (int i=0; i<1000; ++i) {
+			waypointName = String.Format("Waypoint{0:0##}", i);
+			bool found = false;
+			foreach (AutoWaypoint wp in waypoints) {
+				if (wp.name==waypointName) {
+					found = true;
+					break;					
+				}
+			}
+			if (!found) {
+				break;
+			}
+		}
+		
+		GameObject waypoint = new GameObject(waypointName, new Type[]{typeof(AutoWaypoint)});
+		waypoint.transform.parent=this.transform;
 	}
 	
     void Awake(){
