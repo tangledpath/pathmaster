@@ -6,11 +6,11 @@ public class AutoWaypointOptions : MonoBehaviour {
 	private static AutoWaypointOptions instance;
 	
 	public Color waypointColor = new Color(0.3f, 0, 0.4f, 1.0f); // a Nice purple
+	public Color selectedWaypointColor = Color.cyan;
 	public Color connectorColor = new Color(0.0f, 0.3f, 0.01f, 1.0f); // a Nice green
 	public Color badConnectorColor = new Color(0.3f, 0.0f, 0.01f, 1.0f); // a Nice red	
 	public bool  drawConnectors = true;
 	public string lastWaypointFind="nada";
-	public AutoWaypoint[] allWaypoints;
 	
 	public static AutoWaypointOptions Instance { 
 		get {
@@ -31,7 +31,7 @@ public class AutoWaypointOptions : MonoBehaviour {
 	
 	[ContextMenu ("Rebuild Waypoint Paths")]
 	void RebuildWaypointPaths() {
-		AutoWaypoint.ConnectAllWaypoints();
+		PathFinder.ConnectAllWaypoints();
 	}
 	
     void Awake(){
