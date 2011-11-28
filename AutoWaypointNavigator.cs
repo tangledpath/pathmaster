@@ -15,6 +15,7 @@ public class AutoWaypointNavigator : MonoBehaviour {
 	private static float TARGET_CLOSE_DISTANCE_SQR = 1.0f;
 	//private static float SEARCH_TIMEOUT = 30.0f;	
 	public float rotationSpeed = 0.5f;
+	public float speed = 4.0f;
 	//private float searchTime=0.0f;
 	
 	
@@ -42,11 +43,11 @@ public class AutoWaypointNavigator : MonoBehaviour {
 					// We are here:
 					this.rigidbody.velocity=Vector3.zero;
 				} else if (currentPath.Count==0) {
-					this.rigidbody.velocity=(currentTarget.transform.position-this.transform.position).normalized * 2;
+					this.rigidbody.velocity=(currentTarget.transform.position-this.transform.position).normalized * speed;
 				} else if (IsTargetClose(((AutoWaypoint)currentPath[0]).transform)) {
 					currentPath.RemoveAt(0);
 				} else {
-					this.rigidbody.velocity=(((AutoWaypoint)currentPath[0]).transform.position-this.transform.position).normalized * 2;
+					this.rigidbody.velocity=(((AutoWaypoint)currentPath[0]).transform.position-this.transform.position).normalized * speed;
 				}
 				
 

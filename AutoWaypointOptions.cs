@@ -54,7 +54,8 @@ public class AutoWaypointOptions : MonoBehaviour {
 			}
 		}
 		
-		GameObject waypoint = new GameObject(waypointName, new Type[]{typeof(AutoWaypoint)});
+		GameObject waypoint = new GameObject(waypointName, new Type[]{typeof(AutoWaypoint)});		
+		waypoint.transform.position = new Vector3(waypoint.transform.position.x, 0.0f, waypoint.transform.position.z);
 		waypoint.transform.parent=this.transform;
 	}
 	
