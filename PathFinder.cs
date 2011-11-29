@@ -35,12 +35,12 @@ public class PathFinder
 	public static ArrayList AStar(GameObject start, GameObject goal) {
 		//UnityEngine.Debug.Log("Finding path from " + start.transform.position.ToString() + " to " + goal.ToString());
 		Vector3 startPos = start.transform.position;
+		AutoWaypoint startWaypoint = ClosestWaypoint(startPos);
 		ConnectAllWaypoints();
 		AutoWaypoint[] all= AllWayPoints();
-		float tm = Time.realtimeSinceStartup;
+		//float tm = Time.realtimeSinceStartup;
 		ArrayList closedSet = new ArrayList(all.Length);
 		ArrayList openSet = new ArrayList(all.Length);
-		AutoWaypoint startWaypoint = ClosestWaypoint(startPos);
 		if (startWaypoint==null) {
 			Debug.LogWarning("No waypoints!");
 			return new ArrayList();
@@ -58,7 +58,7 @@ public class PathFinder
 			AutoWaypoint candidate=(AutoWaypoint)openSet[0];
 			if (((candidate.transform.position - goal.transform.position).sqrMagnitude <= A_STAR_GOAL_TOLERANCE_SQR) && candidate.CanSee(goal)) {
 				// Pretty close & can see:
-				AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
+				//AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
 				return ReconstructPath(cameFrom, candidate);
 			}
 			
@@ -99,8 +99,8 @@ public class PathFinder
 				}
 			}
 		}	
-		AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
-		return null;
+		//AutoWaypointOptions.Instance.lastWaypointFind = "" + (Time.realtimeSinceStartup-tm);
+		return new ArrayList();
 	}
 	
 	public static ArrayList ReconstructPath(IDictionary cameFrom, AutoWaypoint currentNode) {

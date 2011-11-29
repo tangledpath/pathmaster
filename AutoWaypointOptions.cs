@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using System;
 using System.Collections;
 
@@ -12,6 +13,8 @@ public class AutoWaypointOptions : MonoBehaviour {
 	public Color badConnectorColor = new Color(0.3f, 0.0f, 0.01f, 1.0f); // a Nice red	
 	public bool  drawConnectors = true;
 	public string lastWaypointFind="nada";
+	public string[] ignoreLayers = new string[]{};
+	private int layerMask = 0xff;
 	
 	public static AutoWaypointOptions Instance { 
 		get {
@@ -30,8 +33,22 @@ public class AutoWaypointOptions : MonoBehaviour {
         } 
     }
 	
+	public int PathLayerMask() {
+		if (layerMask==-1) {
+			// Calculate once, as we are starting from strings:
+			int mask=0;
+			foreach (string layerName in ignoreLayers) {
+				mask = mask | (1 << LayerMask.NameToLayer(layerName));
+			}
+			layerMask = ~mask;
+			Debug.Log("Layer mask was: " + layerMask);
+		}
+		return layerMask;
+	}
+	
 	[ContextMenu ("Rebuild Waypoint Paths")]
-	void RebuildWaypointPaths() {
+	public void RebuildWaypointPaths() {
+		layerMask=-1; // Effect reset
 		PathFinder.ConnectAllWaypoints();
 	}
 	
@@ -57,15 +74,16 @@ public class AutoWaypointOptions : MonoBehaviour {
 		GameObject waypoint = new GameObject(waypointName, new Type[]{typeof(AutoWaypoint)});		
 		waypoint.transform.position = new Vector3(waypoint.transform.position.x, 0.0f, waypoint.transform.position.z);
 		waypoint.transform.parent=this.transform;
+		UnityEditor.Selection.activeGameObject=waypoint;
 	}
 	
     void Awake(){
         instance=(AutoWaypointOptions)FindObjectOfType(typeof(AutoWaypointOptions));
-    }
+	}
 	
 	// Use this for initialization
 	void Start () {
-	
+
 	}
 	
 	// Update is called once per frame

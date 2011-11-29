@@ -4,7 +4,7 @@ using System.Collections;
 public class AutoWaypoint : MonoBehaviour {
 	// True to always show connectors.  Otherwise, show when selected:
 	private const float WAYPOINT_SIDE_LEN = 0.25f;
-	private const float RAYCASTCHECKRADIUS = 0.25f;	
+	private const float RAYCASTCHECKRADIUS = 0.01f;	
 		
 	// All connected waypoints:	
 	public AutoWaypoint[] waypoints;
@@ -27,7 +27,7 @@ public class AutoWaypoint : MonoBehaviour {
 	
 	[ContextMenu ("Rebuild Waypoint Paths")]
 	void RebuildWaypointPaths() {
-		PathFinder.ConnectAllWaypoints();
+		AutoWaypointOptions.Instance.RebuildWaypointPaths();
 	}
 	
 	void OnDrawGizmos() {
@@ -133,10 +133,11 @@ public class AutoWaypoint : MonoBehaviour {
 		
 		// A more complicated check for collider objects.  The simple check above
 		// won't work in some cases since the collider blocks the line-of-sight:
-		RaycastHit[] hits;
+		RaycastHit[] hits;		
 		Vector3 dir = (obj.transform.position-this.transform.position).normalized;
 		
-		hits = Physics.RaycastAll(this.transform.position, dir, Mathf.Infinity);
+		hits = Physics.RaycastAll(this.transform.position, dir, Mathf.Infinity, AutoWaypointOptions.Instance.PathLayerMask());
+		//hits = Physics.CapsuleCastAll(this.transform.position, obj.transform.position, RAYCASTCHECKRADIUS, dir);				
 		return (hits.Length > 0 && GetClosestHit(hits).transform==obj.transform);		
 	}
 	
@@ -146,7 +147,9 @@ public class AutoWaypoint : MonoBehaviour {
 		float closest = Mathf.Infinity;
 		RaycastHit closestHit=new RaycastHit();
 		foreach(RaycastHit h in hits) {
-			if ((h.transform.position - this.transform.position).sqrMagnitude < closest) {
+			float mag = (h.transform.position - this.transform.position).sqrMagnitude;
+			if (mag < closest) {
+				closest = mag;
 				closestHit = h;
 			}
 		}
@@ -156,7 +159,7 @@ public class AutoWaypoint : MonoBehaviour {
 	private bool CanSeePos(Vector3 pos) {
 		Vector3 p1 = new Vector3(pos.x, pos.y+RAYCASTCHECKRADIUS+0.1f, pos.z);
 		Vector3 p2 = new Vector3(transform.position.x, transform.position.y+RAYCASTCHECKRADIUS+0.1f, transform.position.z);
-		return !Physics.CheckCapsule(p1, p2, RAYCASTCHECKRADIUS);
+		return !Physics.CheckCapsule(p1, p2, RAYCASTCHECKRADIUS, AutoWaypointOptions.Instance.PathLayerMask());
 	}	
 }
 
