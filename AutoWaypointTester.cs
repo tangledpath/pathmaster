@@ -37,11 +37,12 @@ public class AutoWaypointTester : MonoBehaviour {
 		if (destination!=null) {
 			Vector3 src=transform.position;
 			FindPath();
-			if (path!=null) { 
+			if (path!=null) {
+				//Debug.Log("Path was: " + path.Count);
 				Vector3 dst;			
-				for (int i=0; (path!=null && i<path.Count); ++i) {
+				for (int i=0; (i<path.Count); ++i) {
 					dst = ((AutoWaypoint)path[i]).transform.position;
-					Gizmos.color = Color.blue;
+					Gizmos.color = Color.blue; // Blue
 					Gizmos.DrawLine(src, dst);					
 					src.x+=0.01f;
 					dst.z+=0.01f;

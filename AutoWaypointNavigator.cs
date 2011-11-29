@@ -21,16 +21,6 @@ public class AutoWaypointNavigator : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
-		// TODO: Handle character motor and Constant Force:
-//		motor = GetComponent(typeof(CharacterMotor)) as CharacterMotor;
-//		if (motor==null) {
-//			UnityEngine.Debug.LogError("Character Motor is a required component.", this);
-//		}						
-		
-//		if (this.constantForce==null) {
-//			UnityEngine.Debug.LogError("Must have a constant force attached.", this);
-//		}
 	}
 	
 	// Update is called once per frame
@@ -52,7 +42,7 @@ public class AutoWaypointNavigator : MonoBehaviour {
 				
 
 			} else {
-				Debug.Log("Calculating path.");
+				//Debug.Log("Calculating path.");
 				// We need to calculate a path:
 				this.rigidbody.velocity=Vector3.zero;
 				CalculatePathToTarget(currentTarget);
@@ -71,6 +61,9 @@ public class AutoWaypointNavigator : MonoBehaviour {
 		ArrayList path = PathFinder.AStar(this.gameObject, targ);
 		
 		if (path.Count==0) {
+			// Happens when path can't be found.  This is currently occuring as the objects never
+			// die.  We also need to put the "Unit" objects in a layer to not be considered for 
+			// waypoint calculation:
 			Debug.Log("A* path was null.");		
 		}
 		
