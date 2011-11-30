@@ -32,15 +32,33 @@ public class PathFinder
 		return closestPnt;
 	}
 	
+	// Find distance from start to goal, using shortest path:
+	public static float distance(GameObject start, GameObject goal) {
+		ArrayList path = AStar(start, goal);
+		Vector3 src = start.transform.position;
+		Vector3 dst;
+		float distance = 0.0f;
+		for (int i=0; (i<path.Count); ++i) {
+			dst = ((AutoWaypoint)path[i]).transform.position;
+			distance += (dst - src).magnitude;
+			src = dst; // Next src
+		}
+		
+		// Add distance from final dst.  This is stored in src from loop.  If for some reason, no
+		// waypoints in path, this will be from start, how clever:
+		distance += (goal.transform.position - src).magnitude;
+		return distance;
+	}
+	
 	public static ArrayList AStar(GameObject start, GameObject goal) {
 		//UnityEngine.Debug.Log("Finding path from " + start.transform.position.ToString() + " to " + goal.ToString());
 		Vector3 startPos = start.transform.position;
 		AutoWaypoint startWaypoint = ClosestWaypoint(startPos);
 		ConnectAllWaypoints();
-		AutoWaypoint[] all= AllWayPoints();
+		//AutoWaypoint[] all= AllWayPoints();
 		//float tm = Time.realtimeSinceStartup;
-		ArrayList closedSet = new ArrayList(all.Length);
-		ArrayList openSet = new ArrayList(all.Length);
+		ArrayList closedSet = new ArrayList(20);
+		ArrayList openSet = new ArrayList(20);
 		if (startWaypoint==null) {
 			Debug.LogWarning("No waypoints!");
 			return new ArrayList();
