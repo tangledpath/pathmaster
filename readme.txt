@@ -1,1 +1,0 @@
-Pathmaster A* Auto-waypoint magic.
