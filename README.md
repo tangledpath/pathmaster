@@ -39,7 +39,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Authors
 
-Steven miers
+[Steven Miers](https://github.com/git-steven)
 
 See also the list of [contributors](https://github.com/tangledpath/pathfinder/contributors) who participated in this project.
 
