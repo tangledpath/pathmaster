@@ -2,6 +2,9 @@
 
 A* pathfinding in Unity 3D via AutoWaypoints.  This was part of a Unity game that didn't make it to market.  Since Unity now has pathfinding built-in, we are open-sourcing this for posterity.
 
+![image](https://github.com/tangledpath/pathmaster/assets/6759449/e3997af8-73ef-4500-8311-20dd034e1363)
+
+
 ## Getting Started
 
 You will need all these classes (behaviors), with the possible exception of AutoWaypointTester, which adds real-time pathfinding to the editor.  Add the AutoWaypoing
